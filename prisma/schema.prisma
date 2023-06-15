@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model favorite {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  link        String
+  listId      Int
+  userId      Int
+  list        list   @relation(fields: [listId], references: [id], map: "Favorite_listId_fkey")
+  user        user   @relation(fields: [userId], references: [id])
+
+  @@index([listId], map: "Favorite_listId_fkey")
+  @@index([userId], map: "favorite_userId_fkey")
+}
+
+model list {
+  id       Int        @id @default(autoincrement())
+  name     String
+  userId   Int
+  favorite favorite[]
+  user     user       @relation(fields: [userId], references: [id], map: "List_userId_fkey")
+
+  @@index([userId], map: "List_userId_fkey")
+}
+
+model user {
+  id       Int        @id @default(autoincrement())
+  email    String     @unique(map: "User_email_key")
+  password String
+  favorite favorite[]
+  list     list[]
+}
